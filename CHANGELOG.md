@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.0 - 2026-06-15
+
+### Added
+
+- Added standalone database identity support with `identity.fields`, `idField`
+  compatibility, scalar keys for single-field resources, canonical object keys
+  for compound resources, duplicate-key detection, declared local indexes, and
+  RedisJSON key layout based on canonical identity objects.
+- Added append-only collection policy support through `append()`, with
+  update/delete/replace-all writes rejected for log resources.
+- Added encoded bytes metadata and validation for `base64`, `base64url`, and
+  `hex` strings.
+- Added generated `@async/pipeline` preview, snapshot, publish, GitHub Packages
+  mirror, and release-doctor jobs so releases publish through GitHub Actions.
+
 ## 0.1.0
 
 - Initial package scaffold for JSON file/folder database APIs and RedisJSON store support.

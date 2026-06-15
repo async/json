@@ -1,4 +1,4 @@
-import { definePipeline, job, sh, task, trigger } from "@async/pipeline";
+import { definePipeline, env, job, sh, task, trigger } from "@async/pipeline";
 
 const packageInputs = [
   "package.json",
@@ -31,11 +31,21 @@ export default definePipeline({
       prefix: "pipeline",
       runners: ["package"],
       targets: [{ package: "@async/json" }],
-      jobs: ["pages", "verify"],
+      jobs: ["pages", "preview", "publish", "publish-github", "release-doctor", "snapshot", "verify"],
       tasks: ["build", "test", "api-surface", "docs.site", "pack"],
       scripts: {
         "github:check": "github check",
         "github:generate": "github generate",
+        "publish": "run publish",
+        "publish-github": "run publish-github",
+        "publish:github:main": "publish github main --package .",
+        "publish:github:pr": "publish github pr --package .",
+        "publish:github:release": "publish github release --package .",
+        "publish:npm": "publish npm --package .",
+        "release:doctor": "release doctor --package .",
+        "release:ensure": "release ensure --package .",
+        "release-doctor": "run release-doctor",
+        "snapshot": "run snapshot",
         "sync:check": "sync check",
         "sync:generate": "sync generate"
       }
@@ -75,6 +85,50 @@ export default definePipeline({
       inputs: packageInputs,
       cache: false,
       run: sh`pnpm run pack:check`
+    }),
+    preview: task({
+      description: "Same-repo PRs publish an immutable GitHub Packages preview and update one install-instructions comment; fork PRs skip.",
+      dependsOn: ["pack"],
+      inputs: packageInputs,
+      cache: false,
+      run: sh`pnpm async-pipeline publish github pr --package .`
+    }),
+    snapshot: task({
+      description: "Pushes to main publish an immutable GitHub Packages snapshot and move the main dist-tag while the commit is still branch head.",
+      dependsOn: ["pack"],
+      inputs: packageInputs,
+      cache: false,
+      run: sh`pnpm async-pipeline publish github main --package .`
+    }),
+    "release-ensure": task({
+      description: "Create or verify the release tag and GitHub Release before package publishing.",
+      dependsOn: ["pack"],
+      inputs: packageInputs,
+      cache: false,
+      run: sh`pnpm async-pipeline release ensure --package .`
+    }),
+    "publish-github": task({
+      description: "Stable GitHub Packages mirror for the release version before npm publishing.",
+      dependsOn: ["release-ensure"],
+      inputs: packageInputs,
+      cache: false,
+      run: sh`pnpm async-pipeline publish github release --package .`
+    }),
+    publish: task({
+      description: "Publish the verified release to npm, then run release doctor.",
+      dependsOn: ["publish-github"],
+      inputs: packageInputs,
+      cache: false,
+      run: [
+        sh`pnpm async-pipeline publish npm --package .`,
+        sh`pnpm async-pipeline release doctor --package .`
+      ]
+    }),
+    "release-doctor": task({
+      description: "Diagnose release consistency for the current version.",
+      dependsOn: ["pack"],
+      cache: false,
+      run: sh`pnpm async-pipeline release doctor --package .`
     })
   },
   jobs: {
@@ -89,6 +143,81 @@ export default definePipeline({
         pages: {
           build: { kind: "static", path: ".async/pages" }
         }
+      }
+    }),
+    preview: job({
+      target: "preview",
+      trigger: ["pr"],
+      env: {
+        GITHUB_TOKEN: env.secret("GITHUB_TOKEN")
+      },
+      github: {
+        permissions: {
+          issues: "write",
+          packages: "write",
+          pullRequests: "write"
+        }
+      }
+    }),
+    snapshot: job({
+      target: "snapshot",
+      trigger: ["main"],
+      env: {
+        GITHUB_TOKEN: env.secret("GITHUB_TOKEN")
+      },
+      github: {
+        permissions: {
+          contents: "write",
+          packages: "write"
+        }
+      }
+    }),
+    "publish-github": job({
+      target: "publish-github",
+      trigger: ["manual"],
+      env: {
+        GITHUB_TOKEN: env.secret("GITHUB_TOKEN")
+      },
+      github: {
+        permissions: {
+          contents: "write",
+          packages: "write"
+        }
+      }
+    }),
+    publish: job({
+      target: "publish",
+      trigger: ["manual", "release"],
+      environment: {
+        name: "npm-publish",
+        url: "https://www.npmjs.com/package/@async/json"
+      },
+      requires: {
+        provenance: true
+      },
+      env: {
+        NODE_AUTH_TOKEN: env.secret("npm_token"),
+        GITHUB_TOKEN: env.secret("GITHUB_TOKEN")
+      },
+      github: {
+        permissions: {
+          contents: "write",
+          packages: "write"
+        }
+      }
+    }),
+    "release-doctor": job({
+      description: "Diagnose release consistency for the current version.",
+      target: "release-doctor",
+      trigger: ["manual"],
+      github: {
+        permissions: {
+          contents: "read",
+          packages: "read"
+        }
+      },
+      env: {
+        GITHUB_TOKEN: env.secret("GITHUB_TOKEN")
       }
     })
   }
