@@ -55,8 +55,32 @@
           "docsUrl": "https://github.com/async/json/blob/main/README.md"
         },
         {
+          "id": "runtime.identity",
+          "title": "Collections support scalar idField identity and compound object-key identity without encoded fake ids",
+          "releaseTag": "public",
+          "stability": "stable",
+          "group": "runtime",
+          "docsUrl": "https://github.com/async/json/blob/main/README.md"
+        },
+        {
+          "id": "runtime.append-only",
+          "title": "Append-only collections allow append writes and block create, update, delete, and replace-all mutations",
+          "releaseTag": "public",
+          "stability": "stable",
+          "group": "runtime",
+          "docsUrl": "https://github.com/async/json/blob/main/README.md"
+        },
+        {
+          "id": "runtime.encoded-payloads",
+          "title": "Bytes field metadata validates base64, base64url, and hex JSON-safe payload strings",
+          "releaseTag": "public",
+          "stability": "stable",
+          "group": "runtime",
+          "docsUrl": "https://github.com/async/json/blob/main/README.md"
+        },
+        {
           "id": "runtime.redis-json",
-          "title": "Redis JSON adapter stores collection records under per-record JSON keys and creates only declared search indexes",
+          "title": "Redis JSON adapter stores collection records under per-record canonical identity keys and creates only declared search indexes",
           "releaseTag": "beta",
           "stability": "preview",
           "group": "runtime",
@@ -79,6 +103,9 @@
       "contractId": "@async/json.runtime",
       "features": [
         "runtime.file-folder",
+        "runtime.append-only",
+        "runtime.encoded-payloads",
+        "runtime.identity",
         "runtime.local-engine",
         "runtime.query",
         "runtime.redis-json"

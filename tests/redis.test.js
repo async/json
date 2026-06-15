@@ -49,6 +49,28 @@ test('redisJson stores collections as per-record JSON keys', async () => {
   assert.equal(client.indexes[0].index, 'app:idx:users:email');
 });
 
+test('redisJson stores compound identity records under canonical object keys', async () => {
+  const cwd = await mkdtemp(path.join(tmpdir(), 'async-json-redis-test-'));
+  const file = path.join(cwd, 'memberships.json');
+  await writeFile(file, JSON.stringify([{ orgId: 'o_1', userId: 'u_1', role: 'owner' }]));
+  const client = fakeRedisJsonClient();
+
+  const memberships = await json(file, {
+    store: redisJson({ client, prefix: 'app:' }),
+    identity: { fields: ['orgId', 'userId'] },
+  });
+  await memberships.create({ orgId: 'o_1', userId: 'u_2', role: 'member' });
+
+  const firstKey = 'app:memberships:records:%7B%22orgId%22%3A%22o_1%22%2C%22userId%22%3A%22u_1%22%7D';
+  const secondKey = 'app:memberships:records:%7B%22orgId%22%3A%22o_1%22%2C%22userId%22%3A%22u_2%22%7D';
+  assert.deepEqual(client.values.get('app:memberships:ids'), [
+    '{"orgId":"o_1","userId":"u_1"}',
+    '{"orgId":"o_1","userId":"u_2"}',
+  ]);
+  assert.deepEqual(client.values.get(firstKey), { orgId: 'o_1', userId: 'u_1', role: 'owner' });
+  assert.deepEqual(client.values.get(secondKey), { orgId: 'o_1', userId: 'u_2', role: 'member' });
+});
+
 test('redisJson stores documents under document keys', async () => {
   const cwd = await mkdtemp(path.join(tmpdir(), 'async-json-redis-test-'));
   const file = path.join(cwd, 'settings.json');

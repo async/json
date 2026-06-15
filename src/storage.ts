@@ -25,6 +25,13 @@ export type JsonRuntimeResource = {
   name: string;
   kind?: string;
   idField?: string;
+  identity?: {
+    fields: string[];
+  };
+  writePolicy?: string;
+  log?: Record<string, unknown>;
+  fields?: Record<string, unknown>;
+  indexes?: unknown[];
   dataHash?: string | null;
   dataPath?: string | null;
   dataFormat?: unknown;

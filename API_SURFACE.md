@@ -21,14 +21,17 @@ Contract: `@async/json.runtime`
 
 | Feature | Title | Release | Stability | Lifecycle | Replacement | Docs |
 | --- | --- | --- | --- | --- | --- | --- |
+| `runtime.append-only` | Append-only collections allow append writes and block create, update, delete, and replace-all mutations | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
+| `runtime.encoded-payloads` | Bytes field metadata validates base64, base64url, and hex JSON-safe payload strings | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
 | `runtime.file-folder` | JSON file and folder paths open as collection/document resources with sidecar state by default | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
+| `runtime.identity` | Collections support scalar idField identity and compound object-key identity without encoded fake ids | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
 | `runtime.local-engine` | Local JSON engine owns atomic writes, sidecar state, version history, recovery, advisory locks, and declared indexes | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
 | `runtime.query` | Collection query helpers support where, orderBy, limit, offset, count, and aggregate | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
-| `runtime.redis-json` | Redis JSON adapter stores collection records under per-record JSON keys and creates only declared search indexes | beta | preview | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
+| `runtime.redis-json` | Redis JSON adapter stores collection records under per-record canonical identity keys and creates only declared search indexes | beta | preview | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
 
 ## Supported Surfaces
 
 | Contract | Hash | Features |
 | --- | --- | --- |
 | `@async/json.package` | `sha256:fadc5b04de3d99e776b4b373420cf7e28eecf725ac4d848098cb3462f3820161` | `export.redis`, `export.root` |
-| `@async/json.runtime` | `sha256:84cafe2532edffbc8cb4c1eaa64ecacdca0950bfa76c4e4d6f60cfdc2766520e` | `runtime.file-folder`, `runtime.local-engine`, `runtime.query`, `runtime.redis-json` |
+| `@async/json.runtime` | `sha256:fb912df7fce952be5bdad1887ef313012864f34cb7cc9c0c7f4aaefda882cab2` | `runtime.append-only`, `runtime.encoded-payloads`, `runtime.file-folder`, `runtime.identity`, `runtime.local-engine`, `runtime.query`, `runtime.redis-json` |

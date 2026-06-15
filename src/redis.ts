@@ -102,11 +102,10 @@ export function redisJson(options: RedisJsonOptions): JsonStoreFactory {
   }
 
   async function writeCollection(resource: JsonRuntimeResource, records: CollectionRecord[]): Promise<void> {
-    const idField = String(resource.idField ?? 'id');
     const previousIds = new Set((await readIds(resource)) ?? []);
-    const nextIds = records.map((record) => String(record[idField]));
+    const nextIds = records.map((record) => identityKeyString(resource, record));
     for (const record of records) {
-      await jsonSet(recordKey(resource, String(record[idField])), record);
+      await jsonSet(recordKey(resource, identityKeyString(resource, record)), record);
     }
     for (const staleId of previousIds) {
       if (!nextIds.includes(staleId)) {
@@ -225,6 +224,23 @@ export function redisJson(options: RedisJsonOptions): JsonStoreFactory {
 }
 
 export const redisJsonStore = redisJson;
+
+function identityFields(resource: JsonRuntimeResource): [string, ...string[]] {
+  const fields = Array.isArray(resource.identity?.fields)
+    ? resource.identity.fields.map(String).filter(Boolean)
+    : [];
+  return fields.length > 0
+    ? fields as [string, ...string[]]
+    : [String(resource.idField ?? 'id')];
+}
+
+function identityKeyString(resource: JsonRuntimeResource, record: CollectionRecord): string {
+  const fields = identityFields(resource);
+  if (fields.length === 1) {
+    return String(record[fields[0]]);
+  }
+  return JSON.stringify(Object.fromEntries(fields.map((field) => [field, record[field]])));
+}
 
 function assertRedisJsonClient(client: RedisJsonClient | null | undefined): asserts client is RedisJsonClient {
   if (client && (client.json?.get || client.sendCommand || client.call || client.get)) return;

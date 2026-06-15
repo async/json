@@ -71,6 +71,81 @@ test('declared local indexes write sidecar index files', async () => {
   });
 });
 
+test('compound identity accepts object keys and writes canonical index ids', async () => {
+  const cwd = await tempProject();
+  const file = path.join(cwd, 'memberships.json');
+  await writeFile(file, JSON.stringify([
+    { orgId: 'o_1', userId: 'u_1', role: 'owner' },
+  ]));
+
+  const memberships = await json(file, {
+    identity: { fields: ['orgId', 'userId'] },
+    indexes: ['role'],
+  });
+
+  assert.deepEqual(await memberships.get({ orgId: 'o_1', userId: 'u_1' }), {
+    orgId: 'o_1',
+    userId: 'u_1',
+    role: 'owner',
+  });
+
+  await memberships.patch({ orgId: 'o_1', userId: 'u_1' }, { role: 'admin', userId: 'changed' });
+  assert.deepEqual(await memberships.get({ orgId: 'o_1', userId: 'u_1' }), {
+    orgId: 'o_1',
+    userId: 'u_1',
+    role: 'admin',
+  });
+  await memberships.create({ orgId: 'o_1', userId: 'u_2', role: 'member' });
+
+  await assert.rejects(
+    () => memberships.create({ orgId: 'o_1', userId: 'u_2', role: 'member' }),
+    /identity already exists/,
+  );
+  await assert.rejects(
+    () => memberships.get('o_1:u_1'),
+    /object key/,
+  );
+
+  const indexFile = path.join(cwd, '.async-json/indexes/memberships.role.json');
+  assert.deepEqual(await readJsonState(indexFile, {}), {
+    '["admin"]': ['{"orgId":"o_1","userId":"u_1"}'],
+    '["member"]': ['{"orgId":"o_1","userId":"u_2"}'],
+  });
+});
+
+test('append-only resources only allow append writes', async () => {
+  const cwd = await tempProject();
+  const file = path.join(cwd, 'events.json');
+  await writeFile(file, '[]\n');
+
+  const events = await json(file, { writePolicy: 'append-only' });
+  await events.append({ id: 'e_1', type: 'created' });
+
+  await assert.rejects(() => events.create({ id: 'e_2', type: 'updated' }), /append-only/);
+  await assert.rejects(() => events.patch('e_1', { type: 'patched' }), /append-only/);
+  await assert.rejects(() => events.delete('e_1'), /append-only/);
+  await assert.rejects(() => events.replaceAll([]), /append-only/);
+});
+
+test('bytes metadata validates JSON-safe encoded payload strings', async () => {
+  const cwd = await tempProject();
+  const file = path.join(cwd, 'updates.json');
+  await writeFile(file, '[]\n');
+
+  const updates = await json(file, {
+    fields: {
+      id: { type: 'string', required: true },
+      update: { type: 'bytes', encoding: 'base64url', required: true },
+    },
+  });
+
+  await updates.create({ id: 'u_1', update: 'YWJjZA' });
+  await assert.rejects(
+    () => updates.create({ id: 'u_2', update: 'not+base64url' }),
+    /base64url-encoded string/,
+  );
+});
+
 test('version helpers keep and restore JSON snapshots', async () => {
   const cwd = await tempProject();
   const file = path.join(cwd, 'state.json');

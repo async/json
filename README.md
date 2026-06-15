@@ -24,8 +24,56 @@ By default the visible JSON file is seed data and writes go to sidecar state
 under `.async-json/state`. Use `writes: 'source'` only when the JSON file itself
 should be rewritten.
 
-`@async/db` remains the platform layer for readers, schemas, generated types,
-REST/GraphQL, operations, lifecycle, and store graduation.
+`@async/json` owns standalone JSON database semantics: collection/document
+runtime APIs, scalar and compound identity, append-only collections, encoded
+payload validation, sidecar state, local indexes, and RedisJSON storage. Use
+`@async/db` when you also need readers, schemas, generated types, REST/GraphQL,
+operations, lifecycle, and store graduation.
+
+## Identity, Logs, And Encoded Payloads
+
+Single-field resources keep using `id` by default:
+
+```js
+const users = await json('./users.json');
+await users.get('u_1');
+```
+
+Compound identity uses object keys instead of delimiter-encoded ids:
+
+```js
+const memberships = await json('./memberships.json', {
+  identity: { fields: ['orgId', 'userId'] },
+  indexes: ['role'],
+});
+
+await memberships.get({ orgId: 'o_1', userId: 'u_1' });
+await memberships.patch({ orgId: 'o_1', userId: 'u_1' }, { role: 'admin' });
+```
+
+Append-only collections allow `append()` and block create/update/delete/replace
+APIs:
+
+```js
+const events = await json('./events.json', {
+  writePolicy: 'append-only',
+});
+
+await events.append({ id: 'e_1', type: 'created' });
+```
+
+Bytes fields validate JSON-safe encoded strings while keeping payloads opaque:
+
+```js
+const updates = await json('./updates.json', {
+  fields: {
+    id: { type: 'string', required: true },
+    update: { type: 'bytes', encoding: 'base64url', required: true },
+  },
+});
+
+await updates.append({ id: 'u_1', update: 'YWJjZA' });
+```
 
 ## Redis JSON
 
