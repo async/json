@@ -2,8 +2,13 @@
 
 ## Unreleased
 
+## 0.4.0 - 2026-06-15
+
 ### Added
 
+- Added folder database resource proxies so `db.users.find()` and
+  `db.settings.get()` work alongside callable controls such as
+  `db.collection('users')`, with `db._` as the explicit control namespace.
 - Added `file.patch()` and `patchFile()` helpers for atomic in-place JSON file
   updates that preserve existing object key order.
 

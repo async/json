@@ -29,6 +29,7 @@ Contract: `@async/json.runtime`
 | `runtime.local-engine` | Local JSON engine owns atomic writes, sidecar state, version history, recovery, advisory locks, and declared indexes | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
 | `runtime.query` | Collection query helpers support where, orderBy, limit, offset, count, and aggregate | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
 | `runtime.redis-json` | Redis JSON adapter stores collection records under per-record canonical identity keys and creates only declared search indexes | beta | preview | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
+| `runtime.resource-proxy` | Folder database handles expose resources as properties with callable control collision handling | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
 | `runtime.stable-json` | Stable JSON helpers provide deterministic stringify, JSON5-compatible parse, ref-aware revivers, and an opt-in JSON shim | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
 
 ## Supported Surfaces
@@ -36,4 +37,4 @@ Contract: `@async/json.runtime`
 | Contract | Hash | Features |
 | --- | --- | --- |
 | `@async/json.package` | `sha256:fadc5b04de3d99e776b4b373420cf7e28eecf725ac4d848098cb3462f3820161` | `export.redis`, `export.root` |
-| `@async/json.runtime` | `sha256:10648aa24399a3e0bfa2b8a5cc46ca82b454b542795e13e61a63852bbab011a1` | `runtime.append-only`, `runtime.encoded-payloads`, `runtime.file-folder`, `runtime.file-helpers`, `runtime.identity`, `runtime.local-engine`, `runtime.query`, `runtime.redis-json`, `runtime.stable-json` |
+| `@async/json.runtime` | `sha256:eda18939522d0122fdd75a89308343e64e16d49b9c271fc080e8f3e13c2b5d22` | `runtime.append-only`, `runtime.encoded-payloads`, `runtime.file-folder`, `runtime.file-helpers`, `runtime.identity`, `runtime.local-engine`, `runtime.query`, `runtime.redis-json`, `runtime.resource-proxy`, `runtime.stable-json` |

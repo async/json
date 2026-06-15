@@ -16,6 +16,8 @@ await users.create({ name: 'Ada Lovelace', role: 'admin' });
 await users.find({ where: { role: 'admin' } });
 
 const db = await json('./db');
+await db.users.find({ where: { role: 'admin' } });
+await db.settings.get();
 await db.collection('users').find({ where: { role: 'admin' } });
 await db.document('settings').get();
 ```
@@ -23,6 +25,18 @@ await db.document('settings').get();
 By default the visible JSON file is seed data and writes go to sidecar state
 under `.async-json/state`. Use `writes: 'source'` only when the JSON file itself
 should be rewritten.
+
+Folder database handles expose resources as properties. Callable controls stay
+callable, so resources named `collection`, `document`, `resourceNames`, or
+`close` can still use property access while the control call keeps working:
+
+```js
+await db.collection('users').all();
+await db.collection.find(); // resource named "collection"
+await db.resourceNames();
+await db.resourceNames.find(); // resource named "resourceNames"
+await db._.collection('_').all(); // explicit escape hatch
+```
 
 `@async/json` owns standalone JSON database semantics: collection/document
 runtime APIs, scalar and compound identity, append-only collections, encoded

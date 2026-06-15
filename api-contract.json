@@ -39,6 +39,14 @@
           "docsUrl": "https://github.com/async/json/blob/main/README.md"
         },
         {
+          "id": "runtime.resource-proxy",
+          "title": "Folder database handles expose resources as properties with callable control collision handling",
+          "releaseTag": "public",
+          "stability": "stable",
+          "group": "runtime",
+          "docsUrl": "https://github.com/async/json/blob/main/README.md"
+        },
+        {
           "id": "runtime.query",
           "title": "Collection query helpers support where, orderBy, limit, offset, count, and aggregate",
           "releaseTag": "public",
@@ -124,6 +132,7 @@
         "runtime.identity",
         "runtime.file-helpers",
         "runtime.local-engine",
+        "runtime.resource-proxy",
         "runtime.query",
         "runtime.redis-json",
         "runtime.stable-json"

@@ -56,6 +56,34 @@ test('opens a JSON folder as collection and document resources', async () => {
   assert.equal(await db.document('settings').get('theme'), 'dark');
 });
 
+test('folder database proxies resources while keeping callable controls', async () => {
+  const cwd = await tempProject();
+  const dbDir = path.join(cwd, 'db');
+  await import('node:fs/promises').then(({ mkdir }) => mkdir(dbDir));
+  await writeFile(path.join(dbDir, 'users.json'), JSON.stringify([{ id: 'u_1', role: 'admin' }]));
+  await writeFile(path.join(dbDir, 'settings.json'), JSON.stringify({ theme: 'dark' }));
+  await writeFile(path.join(dbDir, 'collection.json'), JSON.stringify([{ id: 'c_1', label: 'resource' }]));
+  await writeFile(path.join(dbDir, 'document.json'), JSON.stringify({ label: 'document-resource' }));
+  await writeFile(path.join(dbDir, 'resourceNames.json'), JSON.stringify([{ id: 'r_1', label: 'resource-names' }]));
+  await writeFile(path.join(dbDir, 'close.json'), JSON.stringify({ enabled: true }));
+  await writeFile(path.join(dbDir, '_.json'), JSON.stringify([{ id: 'underscore' }]));
+
+  const db = await json(dbDir);
+
+  assert.deepEqual(await db.users.find({ where: { role: 'admin' } }), [{ id: 'u_1', role: 'admin' }]);
+  assert.equal(await db.settings.get('theme'), 'dark');
+  assert.deepEqual(await db.collection('users').all(), [{ id: 'u_1', role: 'admin' }]);
+  assert.deepEqual(await db.collection.find({ where: { label: 'resource' } }), [{ id: 'c_1', label: 'resource' }]);
+  assert.equal(await db.document('settings').get('theme'), 'dark');
+  assert.equal(await db.document.get('label'), 'document-resource');
+  assert.deepEqual(db.resourceNames().sort(), ['_', 'close', 'collection', 'document', 'resourceNames', 'settings', 'users']);
+  assert.deepEqual(await db.resourceNames.find(), [{ id: 'r_1', label: 'resource-names' }]);
+  assert.equal(await db.close.get('enabled'), true);
+  assert.deepEqual(await db._.collection('_').all(), [{ id: 'underscore' }]);
+  assert.equal(await db._.document('settings').get('theme'), 'dark');
+  await db.close();
+});
+
 test('declared local indexes write sidecar index files', async () => {
   const cwd = await tempProject();
   const file = path.join(cwd, 'users.json');

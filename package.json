@@ -1,6 +1,6 @@
 {
   "name": "@async/json",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Use a JSON file or folder like a small database, with sidecar state, queries, history, and Redis-backed scale paths.",
   "license": "MIT",
   "type": "module",

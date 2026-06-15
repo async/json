@@ -185,6 +185,16 @@ export type JsonStoreFactory = (context: {
   storeName: string;
 }) => JsonStoreInstance;
 
+export type JsonDatabaseControls = {
+  resourceNames(): string[];
+  collection(name: string): JsonCollection;
+  document(name: string): JsonDocument;
+  close(): Promise<void>;
+};
+
+export type JsonCallableControl<TControl extends (...args: never[]) => unknown> =
+  TControl & Partial<JsonCollection> & Partial<JsonDocument>;
+
 export type JsonCollection = {
   kind: 'collection';
   name: string;
@@ -216,10 +226,11 @@ export type JsonDocument = {
 
 export type JsonDatabase = {
   kind: 'database';
-  resourceNames(): string[];
-  collection(name: string): JsonCollection;
-  document(name: string): JsonDocument;
-  close(): Promise<void>;
+  _: JsonDatabaseControls;
+  resourceNames: JsonCallableControl<() => string[]>;
+  collection: JsonCallableControl<(name: string) => JsonCollection>;
+  document: JsonCallableControl<(name: string) => JsonDocument>;
+  close: JsonCallableControl<() => Promise<void>>;
 };
 
 export type JsonOpenResult = JsonCollection | JsonDocument | JsonDatabase;
@@ -263,8 +274,7 @@ async function openJsonFolder(folderPath: string, options: RequiredRuntimeOption
     resources.push(resourceForSeed(resourceNameForFile(filePath), filePath, seed, options));
   }
   const runtime = await createStandaloneRuntime(resources, options);
-  return {
-    kind: 'database',
+  const controls: JsonDatabaseControls = {
     resourceNames() {
       return resources.map((resource) => resource.name);
     },
@@ -280,6 +290,95 @@ async function openJsonFolder(folderPath: string, options: RequiredRuntimeOption
       return runtime.close();
     },
   };
+  return createJsonDatabaseProxy({
+    kind: 'database',
+    _: controls,
+    resourceNames: controls.resourceNames,
+    collection: controls.collection,
+    document: controls.document,
+    close: controls.close,
+  }, resources, controls);
+}
+
+const CALLABLE_DATABASE_CONTROLS = new Set(['resourceNames', 'collection', 'document', 'close']);
+const FUNCTION_OWN_PROPERTIES = new Set(['apply', 'bind', 'call', 'length', 'name', 'prototype', 'toString']);
+
+function createJsonDatabaseProxy(
+  database: JsonDatabase,
+  resources: JsonRuntimeResource[],
+  controls: JsonDatabaseControls,
+): JsonDatabase {
+  const callableControls = new Map<string, unknown>();
+  return new Proxy(database, {
+    get(target, property, receiver) {
+      if (typeof property !== 'string') {
+        return Reflect.get(target, property, receiver);
+      }
+      if (property === '_') {
+        return controls;
+      }
+      if (CALLABLE_DATABASE_CONTROLS.has(property)) {
+        if (!callableControls.has(property)) {
+          callableControls.set(property, createCallableDatabaseControl(
+            controls[property as keyof JsonDatabaseControls] as (...args: unknown[]) => unknown,
+            () => resourceHandle(resources, controls, property),
+          ));
+        }
+        return callableControls.get(property);
+      }
+      return resourceHandle(resources, controls, property) ?? Reflect.get(target, property, receiver);
+    },
+    has(target, property) {
+      return typeof property === 'string' && (property === '_' || resources.some((resource) => resource.name === property))
+        ? true
+        : Reflect.has(target, property);
+    },
+  });
+}
+
+function createCallableDatabaseControl(
+  control: (...args: unknown[]) => unknown,
+  resource: () => JsonCollection | JsonDocument | null,
+): unknown {
+  return new Proxy(control, {
+    apply(target, thisArg, args) {
+      return Reflect.apply(target, thisArg, args);
+    },
+    get(target, property, receiver) {
+      if (property === 'then') {
+        return undefined;
+      }
+      const handle = resource();
+      if (typeof property === 'string' && handle && property in handle && !FUNCTION_OWN_PROPERTIES.has(property)) {
+        const value = handle[property as keyof typeof handle];
+        return typeof value === 'function' ? value.bind(handle) : value;
+      }
+      return Reflect.get(target, property, receiver);
+    },
+    has(target, property) {
+      const handle = resource();
+      return typeof property === 'string' && handle && property in handle
+        ? true
+        : Reflect.has(target, property);
+    },
+  });
+}
+
+function resourceHandle(
+  resources: JsonRuntimeResource[],
+  controls: JsonDatabaseControls,
+  name: string,
+): JsonCollection | JsonDocument | null {
+  if (name === '_') {
+    return null;
+  }
+  const resource = resources.find((candidate) => candidate.name === name);
+  if (!resource) {
+    return null;
+  }
+  return resource.kind === 'collection'
+    ? controls.collection(name)
+    : controls.document(name);
 }
 
 type RequiredRuntimeOptions = JsonOpenOptions & {
