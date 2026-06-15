@@ -1,0 +1,65 @@
+{
+  "name": "@async/json",
+  "version": "0.1.0",
+  "description": "Use a JSON file or folder like a small database, with sidecar state, queries, history, and Redis-backed scale paths.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/async/json.git"
+  },
+  "bugs": {
+    "url": "https://github.com/async/json/issues"
+  },
+  "homepage": "https://github.com/async/json#readme",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./redis": {
+      "types": "./dist/redis.d.ts",
+      "default": "./dist/redis.js"
+    }
+  },
+  "scripts": {
+    "api-surface:check": "api-contract check --manifest api-contract.json && api-contract ledger --manifest api-contract.json --check API_SURFACE.md",
+    "api-surface:generate": "api-contract ledger --manifest api-contract.json --out API_SURFACE.md",
+    "build": "tsc -p tsconfig.json",
+    "pack:check": "npm --cache .async/npm-cache pack --dry-run",
+    "pipeline:github:check": "async-pipeline github check",
+    "pipeline:github:generate": "async-pipeline github generate",
+    "pipeline:sync:check": "async-pipeline sync check",
+    "pipeline:sync:generate": "async-pipeline sync generate",
+    "pipeline:task:api-surface": "async-pipeline run-task api-surface",
+    "pipeline:task:build": "async-pipeline run-task build",
+    "pipeline:task:pack": "async-pipeline run-task pack",
+    "pipeline:task:test": "async-pipeline run-task test",
+    "pipeline:verify": "async-pipeline run verify",
+    "release:check": "pnpm run build && pnpm run test && pnpm run api-surface:check && pnpm run pack:check",
+    "test": "pnpm run build && node --test tests/*.test.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "files": [
+    "LICENSE",
+    "dist",
+    "README.md",
+    "API_SURFACE.md",
+    "api-contract.json",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@async/api-contract": "0.1.1",
+    "@async/pipeline": "0.5.0",
+    "@types/node": "24.12.4",
+    "typescript": "6.0.3"
+  }
+}

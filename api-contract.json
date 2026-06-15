@@ -1,0 +1,88 @@
+{
+  "format": "api-contract.package.v1",
+  "packageName": "@async/json",
+  "catalogs": [
+    {
+      "format": "api-contract.catalog.v1",
+      "contractId": "@async/json.package",
+      "title": "Async JSON Package Exports",
+      "features": [
+        {
+          "id": "export.root",
+          "title": "@async/json opens a JSON file or folder as a small database and exposes JSON engine helpers",
+          "releaseTag": "public",
+          "stability": "stable",
+          "group": "exports",
+          "docsUrl": "https://github.com/async/json/blob/main/README.md"
+        },
+        {
+          "id": "export.redis",
+          "title": "@async/json/redis provides an optional Redis JSON store adapter",
+          "releaseTag": "beta",
+          "stability": "preview",
+          "group": "exports",
+          "docsUrl": "https://github.com/async/json/blob/main/README.md"
+        }
+      ]
+    },
+    {
+      "format": "api-contract.catalog.v1",
+      "contractId": "@async/json.runtime",
+      "title": "Async JSON Runtime",
+      "features": [
+        {
+          "id": "runtime.file-folder",
+          "title": "JSON file and folder paths open as collection/document resources with sidecar state by default",
+          "releaseTag": "public",
+          "stability": "stable",
+          "group": "runtime",
+          "docsUrl": "https://github.com/async/json/blob/main/README.md"
+        },
+        {
+          "id": "runtime.query",
+          "title": "Collection query helpers support where, orderBy, limit, offset, count, and aggregate",
+          "releaseTag": "public",
+          "stability": "stable",
+          "group": "runtime",
+          "docsUrl": "https://github.com/async/json/blob/main/README.md"
+        },
+        {
+          "id": "runtime.local-engine",
+          "title": "Local JSON engine owns atomic writes, sidecar state, version history, recovery, advisory locks, and declared indexes",
+          "releaseTag": "public",
+          "stability": "stable",
+          "group": "runtime",
+          "docsUrl": "https://github.com/async/json/blob/main/README.md"
+        },
+        {
+          "id": "runtime.redis-json",
+          "title": "Redis JSON adapter stores collection records under per-record JSON keys and creates only declared search indexes",
+          "releaseTag": "beta",
+          "stability": "preview",
+          "group": "runtime",
+          "docsUrl": "https://github.com/async/json/blob/main/README.md"
+        }
+      ]
+    }
+  ],
+  "supported": [
+    {
+      "format": "api-contract.surface.v1",
+      "contractId": "@async/json.package",
+      "features": [
+        "export.root",
+        "export.redis"
+      ]
+    },
+    {
+      "format": "api-contract.surface.v1",
+      "contractId": "@async/json.runtime",
+      "features": [
+        "runtime.file-folder",
+        "runtime.local-engine",
+        "runtime.query",
+        "runtime.redis-json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.async/
+.async-json/
+*.tgz
+.DS_Store
