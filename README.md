@@ -26,9 +26,90 @@ should be rewritten.
 
 `@async/json` owns standalone JSON database semantics: collection/document
 runtime APIs, scalar and compound identity, append-only collections, encoded
-payload validation, sidecar state, local indexes, and RedisJSON storage. Use
-`@async/db` when you also need readers, schemas, generated types, REST/GraphQL,
-operations, lifecycle, and store graduation.
+payload validation, sidecar state, local indexes, RedisJSON storage, stable
+stringify, and JSON5-compatible parsing. Use `@async/db` when you also need
+readers, schemas, generated types, REST/GraphQL, operations, lifecycle, and
+store graduation.
+
+## Stable JSON Helpers
+
+`stableStringify()` produces deterministic JSON by sorting object keys
+lexically. Array order is preserved.
+
+```js
+import { parseJson, registerJson, stableJson, stableStringify } from '@async/json';
+
+stableStringify({ b: 1, a: 2 });
+// {"a":2,"b":1}
+
+stableJson.stringify({ b: 1, a: 2 }, true);
+// {
+//   "a": 2,
+//   "b": 1
+// }
+```
+
+Pass `pretty: true` for two-space output, or use `space` with the same number
+clamping and string truncation rules as `JSON.stringify()`:
+
+```js
+stableStringify({ b: 1, a: 2 }, { pretty: true });
+stableStringify({ b: 1, a: 2 }, { space: '\t' });
+```
+
+Sorting defaults to `true`. Disable it to preserve insertion order, or provide
+a custom comparator:
+
+```js
+stableStringify({ b: 1, a: 2 }, { sort: false });
+
+stableStringify({ id: 1, metadata: {}, name: 'Ada' }, {
+  sort: (left, right) => left.length - right.length || left.localeCompare(right),
+});
+```
+
+The second argument can be a replacer function. Replacers receive path and
+cycle context, so recursive structures can be rendered as JSON references:
+
+```js
+const root = { id: 'root' };
+root.self = root;
+
+stableStringify(root, (key, value, context) =>
+  context.circular
+    ? { $ref: `#/${context.refPath?.join('/') ?? ''}` }
+    : value,
+);
+```
+
+`parseJson()` accepts JSON5-compatible input, including comments, trailing
+commas, unquoted keys, and single-quoted strings. `$ref` objects are not
+resolved automatically; revivers can resolve them in one place:
+
+```js
+const graph = parseJson(`{
+  users: { u_1: { name: 'Ada' } },
+  owner: { $ref: '#/users/u_1' },
+}`, (key, value, context) =>
+  context.isRef ? context.resolvePointer(context.ref ?? '#') : value,
+);
+```
+
+`registerJson()` installs an opt-in `JSON` shim on `globalThis` or a provided
+target. The shim keeps native `JSON.stringify(value, replacer, space)` and
+`JSON.parse(text, reviver)` argument shapes while using `@async/json` parsing
+and stable stringify behavior. The returned function restores the previous
+`JSON` object.
+
+```js
+const restore = registerJson();
+try {
+  JSON.stringify({ b: 1, a: 2 });
+  JSON.parse('{a: 1}');
+} finally {
+  restore();
+}
+```
 
 ## Identity, Logs, And Encoded Payloads
 

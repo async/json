@@ -11,7 +11,7 @@ Contract: `@async/json.package`
 | Feature | Title | Release | Stability | Lifecycle | Replacement | Docs |
 | --- | --- | --- | --- | --- | --- | --- |
 | `export.redis` | @async/json/redis provides an optional Redis JSON store adapter | beta | preview | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
-| `export.root` | @async/json opens a JSON file or folder as a small database and exposes JSON engine helpers | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
+| `export.root` | @async/json opens JSON file/folder databases and exports stable JSON helpers | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
 
 ## Async JSON Runtime
 
@@ -28,10 +28,11 @@ Contract: `@async/json.runtime`
 | `runtime.local-engine` | Local JSON engine owns atomic writes, sidecar state, version history, recovery, advisory locks, and declared indexes | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
 | `runtime.query` | Collection query helpers support where, orderBy, limit, offset, count, and aggregate | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
 | `runtime.redis-json` | Redis JSON adapter stores collection records under per-record canonical identity keys and creates only declared search indexes | beta | preview | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
+| `runtime.stable-json` | Stable JSON helpers provide deterministic stringify, JSON5-compatible parse, ref-aware revivers, and an opt-in JSON shim | public | stable | active |  | [docs](https://github.com/async/json/blob/main/README.md) |
 
 ## Supported Surfaces
 
 | Contract | Hash | Features |
 | --- | --- | --- |
 | `@async/json.package` | `sha256:fadc5b04de3d99e776b4b373420cf7e28eecf725ac4d848098cb3462f3820161` | `export.redis`, `export.root` |
-| `@async/json.runtime` | `sha256:fb912df7fce952be5bdad1887ef313012864f34cb7cc9c0c7f4aaefda882cab2` | `runtime.append-only`, `runtime.encoded-payloads`, `runtime.file-folder`, `runtime.identity`, `runtime.local-engine`, `runtime.query`, `runtime.redis-json` |
+| `@async/json.runtime` | `sha256:c67ec0353fa480c916f76761415fa9bc65eb75e1c6e0933d2bcdaa3273954bbd` | `runtime.append-only`, `runtime.encoded-payloads`, `runtime.file-folder`, `runtime.identity`, `runtime.local-engine`, `runtime.query`, `runtime.redis-json`, `runtime.stable-json` |

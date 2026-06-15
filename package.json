@@ -29,6 +29,7 @@
   "scripts": {
     "api-surface:check": "api-contract check --manifest api-contract.json && api-contract ledger --manifest api-contract.json --check API_SURFACE.md",
     "api-surface:generate": "api-contract ledger --manifest api-contract.json --out API_SURFACE.md",
+    "bench:stable-json": "pnpm run build && node ./scripts/bench-stable-json.js",
     "build": "tsc -p tsconfig.json",
     "pack:check": "npm --cache .async/npm-cache pack --dry-run",
     "pipeline:github:check": "async-pipeline github check",
@@ -53,9 +54,11 @@
     "pipeline:task:pack": "async-pipeline run-task pack",
     "pipeline:task:test": "async-pipeline run-task test",
     "pipeline:verify": "async-pipeline run verify",
-    "release:check": "pnpm run build && pnpm run test && pnpm run api-surface:check && pnpm run pack:check",
+    "release:check": "pnpm run vendor:json5:check && pnpm run build && pnpm run test && pnpm run api-surface:check && pnpm run pack:check",
     "test": "pnpm run build && node --test tests/*.test.js",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "vendor:json5": "node ./scripts/vendor-json5-parser.js",
+    "vendor:json5:check": "node ./scripts/vendor-json5-parser.js --check"
   },
   "files": [
     "LICENSE",
@@ -73,6 +76,7 @@
     "@async/api-contract": "0.1.1",
     "@async/pipeline": "0.5.0",
     "@types/node": "24.12.4",
+    "json5": "2.2.3",
     "typescript": "6.0.3"
   }
 }

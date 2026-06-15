@@ -39,6 +39,25 @@ import { jsonDbError } from './error.js';
 import { nodeFileSystem, type JsonFileSystem } from './fs.js';
 
 export {
+  parseJson,
+  registerJson,
+  stableJson,
+  stableStringify,
+} from './stable-json.js';
+
+export type {
+  JsonParseOptions,
+  JsonParseReviver,
+  JsonParseReviverContext,
+  JsonRegisterOptions,
+  JsonRestore,
+  JsonStableStringifyContext,
+  JsonStableStringifyOptions,
+  JsonStableStringifyReplacer,
+  JsonStableStringifySort,
+} from './stable-json.js';
+
+export {
   aggregateCollectionRecords,
   applyCollectionQuery,
   atomicWriteJson,

@@ -9,7 +9,7 @@
       "features": [
         {
           "id": "export.root",
-          "title": "@async/json opens a JSON file or folder as a small database and exposes JSON engine helpers",
+          "title": "@async/json opens JSON file/folder databases and exports stable JSON helpers",
           "releaseTag": "public",
           "stability": "stable",
           "group": "exports",
@@ -85,6 +85,14 @@
           "stability": "preview",
           "group": "runtime",
           "docsUrl": "https://github.com/async/json/blob/main/README.md"
+        },
+        {
+          "id": "runtime.stable-json",
+          "title": "Stable JSON helpers provide deterministic stringify, JSON5-compatible parse, ref-aware revivers, and an opt-in JSON shim",
+          "releaseTag": "public",
+          "stability": "stable",
+          "group": "runtime",
+          "docsUrl": "https://github.com/async/json/blob/main/README.md"
         }
       ]
     }
@@ -108,7 +116,8 @@
         "runtime.identity",
         "runtime.local-engine",
         "runtime.query",
-        "runtime.redis-json"
+        "runtime.redis-json",
+        "runtime.stable-json"
       ]
     }
   ]
