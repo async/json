@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 - 2026-06-15
+
+### Added
+
+- Added stable JSON helpers: `stableStringify`, `parseJson`, `stableJson`, and
+  `registerJson`.
+- Added a vendored JSON5 parser flow so JSON5-compatible parsing ships without
+  a runtime `json5` dependency.
+
 ## 0.2.0 - 2026-06-15
 
 ### Added
