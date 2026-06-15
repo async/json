@@ -111,6 +111,37 @@ try {
 }
 ```
 
+## File Helpers
+
+Use `file.patch()` to update JSON files like `package.json` without sorting or
+otherwise reordering existing object keys. It preserves the file's indentation
+and trailing newline, writes atomically, and returns `false` when the patch does
+not change the file text.
+
+```js
+import { file } from '@async/json';
+
+await file.patch('./package.json', {
+  scripts: {
+    test: 'node --test',
+  },
+  devDependencies: {
+    typescript: '^6.0.0',
+  },
+});
+```
+
+Object patches deep-merge plain objects, replace arrays and scalar values, and
+append new keys after existing keys. Callback patches can mutate the parsed
+object directly or return a replacement value:
+
+```js
+await file.patch('./package.json', (pkg) => {
+  pkg.scripts ??= {};
+  pkg.scripts.lint = 'eslint .';
+});
+```
+
 ## Identity, Logs, And Encoded Payloads
 
 Single-field resources keep using `id` by default:

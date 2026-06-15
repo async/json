@@ -9,7 +9,7 @@
       "features": [
         {
           "id": "export.root",
-          "title": "@async/json opens JSON file/folder databases and exports stable JSON helpers",
+          "title": "@async/json opens JSON file/folder databases and exports stable JSON and file helpers",
           "releaseTag": "public",
           "stability": "stable",
           "group": "exports",
@@ -93,6 +93,14 @@
           "stability": "stable",
           "group": "runtime",
           "docsUrl": "https://github.com/async/json/blob/main/README.md"
+        },
+        {
+          "id": "runtime.file-helpers",
+          "title": "File helper namespace patches JSON files atomically while preserving existing object key order",
+          "releaseTag": "public",
+          "stability": "stable",
+          "group": "runtime",
+          "docsUrl": "https://github.com/async/json/blob/main/README.md"
         }
       ]
     }
@@ -114,6 +122,7 @@
         "runtime.append-only",
         "runtime.encoded-payloads",
         "runtime.identity",
+        "runtime.file-helpers",
         "runtime.local-engine",
         "runtime.query",
         "runtime.redis-json",

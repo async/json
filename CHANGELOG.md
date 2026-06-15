@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Added `file.patch()` and `patchFile()` helpers for atomic in-place JSON file
+  updates that preserve existing object key order.
+
 ## 0.3.0 - 2026-06-15
 
 ### Added

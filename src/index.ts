@@ -39,6 +39,17 @@ import { jsonDbError } from './error.js';
 import { nodeFileSystem, type JsonFileSystem } from './fs.js';
 
 export {
+  file,
+  patchFile,
+} from './file.js';
+
+export type {
+  FilePatch,
+  FilePatchOptions,
+  FilePatchUpdater,
+} from './file.js';
+
+export {
   parseJson,
   registerJson,
   stableJson,
