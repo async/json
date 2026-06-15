@@ -60,9 +60,15 @@ ledger, and runs a package dry-run.
 Generated files:
 
 - `dist/` is build output and is not committed.
+- `.async/pages/` is generated GitHub Pages output and is not committed.
 - `.async/`, `.async-json/`, `node_modules/`, and `*.tgz` are local runtime,
   cache, dependency, and package output.
 - `.github/workflows/async-pipeline.yml` is generated from `pipeline.ts`.
+
+## Website
+
+The project site is published through GitHub Pages at
+https://async.github.io/json/.
 
 ## Release Status
 

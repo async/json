@@ -6,6 +6,7 @@ const packageInputs = [
   "tsconfig.json",
   "src/**/*.ts",
   "tests/**/*.js",
+  "scripts/**/*.js",
   "README.md",
   "CHANGELOG.md",
   "api-contract.json",
@@ -30,8 +31,8 @@ export default definePipeline({
       prefix: "pipeline",
       runners: ["package"],
       targets: [{ package: "@async/json" }],
-      jobs: ["verify"],
-      tasks: ["build", "test", "api-surface", "pack"],
+      jobs: ["pages", "verify"],
+      tasks: ["build", "test", "api-surface", "docs.site", "pack"],
       scripts: {
         "github:check": "github check",
         "github:generate": "github generate",
@@ -61,6 +62,13 @@ export default definePipeline({
       cache: true,
       run: sh`pnpm run api-surface:check`
     }),
+    "docs.site": task({
+      description: "Build the standardized GitHub Pages documentation site.",
+      inputs: ["README.md", "API_SURFACE.md", "scripts/build-pages.js"],
+      outputs: [".async/pages/**"],
+      cache: false,
+      run: sh`node scripts/build-pages.js`
+    }),
     pack: task({
       description: "Verify the publishable package contents.",
       dependsOn: ["test", "api-surface"],
@@ -73,6 +81,15 @@ export default definePipeline({
     verify: job({
       target: "pack",
       trigger: ["pr", "main", "release"]
+    }),
+    pages: job({
+      target: "docs.site",
+      trigger: ["pr", "main", "manual"],
+      github: {
+        pages: {
+          build: { kind: "static", path: ".async/pages" }
+        }
+      }
     })
   }
 });

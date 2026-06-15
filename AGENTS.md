@@ -44,6 +44,7 @@ pnpm run test
 pnpm run api-surface:check
 pnpm run pipeline:sync:check
 pnpm run pipeline:github:check
+pnpm run pipeline:pages
 ```
 
 Run this before handing off releaseable changes:
@@ -62,6 +63,8 @@ node --test tests/*.test.js
 ## Generated Files
 
 `dist/` is build output and stays uncommitted.
+
+`.async/pages/` is generated GitHub Pages output and stays uncommitted.
 
 `.async/`, `.async-json/`, `node_modules/`, and `*.tgz` are local runtime,
 cache, dependency, and package output and stay uncommitted.
@@ -114,4 +117,3 @@ Add tests for every behavior change that touches:
 - declared local indexes
 - RedisJSON key layout, hydration, index creation, and capability errors
 - package exports
-

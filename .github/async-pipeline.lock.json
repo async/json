@@ -3,8 +3,8 @@
   "generator": "@async/pipeline",
   "config": "pipeline.ts",
   "workflow": ".github/workflows/async-pipeline.yml",
-  "hash": "sha256:92a3ef2bda9f3f9157e8df9c31313f6e7fac1586b5e99ecd5909563801b75bee",
-  "generatedAt": "2026-06-15T05:29:40.182Z",
+  "hash": "sha256:8501e5c5ce351b9b82133566a2315b8bd1410ac3774d6ebd301d854369fa1cb5",
+  "generatedAt": "2026-06-15T06:12:42.712Z",
   "triggers": {
     "pull_request": {},
     "push": {
@@ -16,6 +16,27 @@
     "workflow_dispatch": {}
   },
   "jobs": [
+    {
+      "id": "pages",
+      "target": [
+        "docs.site"
+      ],
+      "trigger": [
+        "pr",
+        "main",
+        "manual"
+      ],
+      "env": {},
+      "github": {
+        "pages": {
+          "build": {
+            "kind": "static",
+            "path": ".async/pages"
+          }
+        }
+      },
+      "if": "(github.event_name == 'pull_request') || (github.event_name == 'push' && (github.ref == 'refs/heads/main')) || (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'pages')"
+    },
     {
       "id": "verify",
       "target": [
@@ -33,5 +54,7 @@
   "packageManager": "pnpm",
   "nodeVersion": "24",
   "taskCache": true,
-  "manualDispatchJobs": []
+  "manualDispatchJobs": [
+    "pages"
+  ]
 }
