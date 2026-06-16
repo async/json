@@ -36,6 +36,6 @@
 - Added generated `@async/pipeline` preview, snapshot, publish, GitHub Packages
   mirror, and release-doctor jobs so releases publish through GitHub Actions.
 
-## 0.1.0
+## 0.1.0 - 2026-06-15
 
 - Initial package scaffold for JSON file/folder database APIs and RedisJSON store support.
