@@ -25,17 +25,20 @@ export default definePipeline({
   sync: {
     github: {
       nodeVersion: 24,
-      cache: true
+      cache: true,
+      packagePreviews: true,
+      pages: { target: "docs.site" }
     },
     tasks: {
       prefix: "pipeline",
       runners: ["package"],
       targets: [{ package: "@async/json" }],
-      jobs: ["pages", "preview", "publish", "publish-github", "release-doctor", "snapshot", "verify"],
+      jobs: ["publish", "publish-github", "release-doctor", "snapshot", "verify"],
       tasks: ["build", "test", "api-surface", "docs.site", "pack"],
       scripts: {
         "github:check": "github check",
         "github:generate": "github generate",
+        "pages": "run-task docs.site",
         "publish": "run publish",
         "publish-github": "run publish-github",
         "publish:github:main": "publish github main --package .",
@@ -86,13 +89,6 @@ export default definePipeline({
       cache: false,
       run: sh`pnpm run pack:check`
     }),
-    preview: task({
-      description: "Same-repo PRs publish an immutable GitHub Packages preview and update one install-instructions comment; fork PRs skip.",
-      dependsOn: ["pack"],
-      inputs: packageInputs,
-      cache: false,
-      run: sh`pnpm async-pipeline publish github pr --package .`
-    }),
     snapshot: task({
       description: "Pushes to main publish an immutable GitHub Packages snapshot and move the main dist-tag while the commit is still branch head.",
       dependsOn: ["pack"],
@@ -135,29 +131,6 @@ export default definePipeline({
     verify: job({
       target: "pack",
       trigger: ["pr", "main", "release"]
-    }),
-    pages: job({
-      target: "docs.site",
-      trigger: ["pr", "main", "manual"],
-      github: {
-        pages: {
-          build: { kind: "static", path: ".async/pages" }
-        }
-      }
-    }),
-    preview: job({
-      target: "preview",
-      trigger: ["pr"],
-      env: {
-        GITHUB_TOKEN: env.secret("GITHUB_TOKEN")
-      },
-      github: {
-        permissions: {
-          issues: "write",
-          packages: "write",
-          pullRequests: "write"
-        }
-      }
     }),
     snapshot: job({
       target: "snapshot",
